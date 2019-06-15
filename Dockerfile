@@ -106,7 +106,7 @@ RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
     && npm i -g yarn
 
 WORKDIR /var/www/html
-CMD composer install && npm install && php ./artisan serve --port=80 --host=0.0.0.0
+CMD [["sh","-c", "composer install && npm install && php ./artisan serve --port=80 --host=0.0.0.0"]
 EXPOSE 80
 HEALTHCHECK --interval=1m CMD curl -f http://localhost/ || exit 1
 ENV TERM xterm
