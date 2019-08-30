@@ -6,6 +6,8 @@ RUN apt-get update; \
         vim \
         wget \
         apt-utils \
+	zip \
+	unzip \
         ;
 # install the PHP extensions we need
 RUN set -ex; \
