@@ -62,7 +62,8 @@ RUN set -ex; \
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
 	rm -rf /var/lib/apt/lists/*
 
-# Use the default production configuration
+# Use the default development configuration
+# see https://hub.docker.com/_/php
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 # set recommended opcache PHP.ini settings
