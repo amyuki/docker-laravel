@@ -37,15 +37,15 @@ RUN set -ex; \
         bcmath \
         bz2 \
         exif \
-		gd \
+	gd \
         gettext \
         intl \
         ldap \
-		opcache \
-		pdo_mysql \
-		pdo_pgsql \
+	opcache \
+	pdo_mysql \
+	pdo_pgsql \
         xmlrpc \
-		zip \
+	zip \
 	; \
 	\
 # reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
@@ -61,6 +61,9 @@ RUN set -ex; \
 	\
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
 	rm -rf /var/lib/apt/lists/*
+
+# Use the default production configuration
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 # set recommended opcache PHP.ini settings
 # see https://secure.php.net/manual/en/opcache.installation.php
@@ -105,7 +108,7 @@ RUN wget -O /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-8.phar \
 # install nodejs, npm, yarn and dependencies
 RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
     && apt-get update && apt-get install -y --no-install-recommends nodejs autoconf automake g++ gcc libtool make nasm python \
-    && npm i -g yarn
+    && npm i -g yarn bower
 
 WORKDIR /var/www/html
 CMD bash -c "composer install && npm install && php ./artisan serve --port=80 --host=0.0.0.0"
