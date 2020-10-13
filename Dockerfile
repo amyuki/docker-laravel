@@ -46,6 +46,13 @@ RUN set -ex; \
 	pdo_pgsql \
         xmlrpc \
 	zip \
+	ctype \
+	fileinfo \
+	json \
+	mbstring \
+	openssl \
+	tokenizer \
+	xml \
 	; \
 	\
 # reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
@@ -101,13 +108,13 @@ RUN { \
     } >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # install phpunit, phpcs and phpcbf.
-RUN wget -O /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-8.phar \
+RUN wget -O /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-9.phar \
     && wget -O /usr/local/bin/phpcs https://squizlabs.github.io/PHP_CodeSniffer/phpcs.phar \
     && wget -O /usr/local/bin/phpcbf https://squizlabs.github.io/PHP_CodeSniffer/phpcbf.phar \
     && chmod +x /usr/local/bin/php*
 
 # install nodejs, npm, yarn and dependencies
-RUN curl -sL https://deb.nodesource.com/setup_10.x | bash - \
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
     && apt-get update && apt-get install -y --no-install-recommends nodejs autoconf automake g++ gcc libtool make nasm python \
     && npm i -g yarn bower
 
