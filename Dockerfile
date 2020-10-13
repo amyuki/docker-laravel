@@ -46,13 +46,6 @@ RUN set -ex; \
 	pdo_pgsql \
         xmlrpc \
 	zip \
-	ctype \
-	fileinfo \
-	json \
-	mbstring \
-	openssl \
-	tokenizer \
-	xml \
 	; \
 	\
 # reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
