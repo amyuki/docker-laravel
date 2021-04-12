@@ -9,6 +9,7 @@ RUN apt-get update; \
 	zip \
 	unzip \
         ;
+   
 # install the PHP extensions we need
 RUN set -ex; \
 	\
@@ -48,6 +49,7 @@ RUN set -ex; \
 	zip \
 	; \
 	\
+	apt-get autoromove; \
 # reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
 	apt-mark auto '.*' > /dev/null; \
 	apt-mark manual $savedAptMark; \
