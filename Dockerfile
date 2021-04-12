@@ -43,8 +43,7 @@ RUN docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr; \
 	pdo_pgsql \
         xmlrpc \
 	zip \
-	; \
-	\
+	; 
 	
 
 
