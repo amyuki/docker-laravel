@@ -1,7 +1,7 @@
 FROM php:7.4-apache
 
 RUN apt-get update; \
-    apt-get apt-get install -y git vim wget apt-utils zip unzip;
+    apt-get install -y git vim wget apt-utils zip unzip;
 
 RUN apt-get install -y --no-install-recommends \
     libbz2-dev libicu-dev libjpeg-dev libpng-dev libldap2-dev libldb-dev libnotify-bin libpq-dev libxml2-dev libzip-dev zlib1g-dev;
