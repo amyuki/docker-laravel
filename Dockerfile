@@ -10,9 +10,7 @@ RUN set -ex; \
 	\
 	if command -v a2enmod; then \
 		a2enmod rewrite; \
-	fi; \
-	\
-	savedAptMark="$(apt-mark showmanual)"; 
+	fi; 
 	
 # install the PHP extensions we need
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
@@ -81,20 +79,6 @@ RUN wget -O /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-9.phar \
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
     && apt-get update && apt-get install -y --no-install-recommends nodejs autoconf automake g++ gcc libtool make nasm python \
     && npm i -g yarn bower
-
-# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
-RUN apt-mark auto '.*' > /dev/null; \
-	apt-mark manual $savedAptMark; \
-	ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
-		| awk '/=>/ { print $3 }' \
-		| sort -u \
-		| xargs -r dpkg-query -S \
-		| cut -d: -f1 \
-		| sort -u \
-		| xargs -rt apt-mark manual; \
-	\
-	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
-	rm -rf /var/lib/apt/lists/*
 	
 WORKDIR /var/www/html
 CMD bash -c "composer install && npm install && php ./artisan serve --port=80 --host=0.0.0.0"
