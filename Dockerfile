@@ -14,23 +14,11 @@ RUN set -ex; \
 	\
 	savedAptMark="$(apt-mark showmanual)"; 
 	
-# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
-RUN apt-mark auto '.*' > /dev/null; \
-	apt-mark manual $savedAptMark; \
-	ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
-		| awk '/=>/ { print $3 }' \
-		| sort -u \
-		| xargs -r dpkg-query -S \
-		| cut -d: -f1 \
-		| sort -u \
-		| xargs -rt apt-mark manual; \
-	\
-	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
-	rm -rf /var/lib/apt/lists/*
-
 # install the PHP extensions we need
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg; \
-	docker-php-ext-install -j$(nproc) \
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+&& docker-php-ext-install -j$(nproc) gd;
+
+RUN docker-php-ext-install -j$(nproc) \
         bcmath \
         bz2 \
         exif \
@@ -45,7 +33,19 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg; \
 	zip \
 	; 
 	
-
+# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
+RUN apt-mark auto '.*' > /dev/null; \
+	apt-mark manual $savedAptMark; \
+	ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
+		| awk '/=>/ { print $3 }' \
+		| sort -u \
+		| xargs -r dpkg-query -S \
+		| cut -d: -f1 \
+		| sort -u \
+		| xargs -rt apt-mark manual; \
+	\
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+	rm -rf /var/lib/apt/lists/*
 
 # Use the default development configuration
 # see https://hub.docker.com/_/php
@@ -92,7 +92,7 @@ RUN wget -O /usr/local/bin/phpunit https://phar.phpunit.de/phpunit-9.phar \
     && chmod +x /usr/local/bin/php*
 
 # install nodejs, npm, yarn and dependencies
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash - \
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
     && apt-get update && apt-get install -y --no-install-recommends nodejs autoconf automake g++ gcc libtool make nasm python \
     && npm i -g yarn bower
 
