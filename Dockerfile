@@ -33,6 +33,9 @@ RUN docker-php-ext-install -j$(nproc) \
 	zip \
 	; 
 	
+# download trusted certs
+RUN mkdir -p /etc/ssl/certs && update-ca-certificates
+
 # reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
 RUN apt-mark auto '.*' > /dev/null; \
 	apt-mark manual $savedAptMark; \
@@ -61,9 +64,6 @@ RUN { \
 		echo 'opcache.fast_shutdown=1'; \
 		echo 'opcache.enable_cli=1'; \
 	} > /usr/local/etc/php/conf.d/opcache-recommended.ini
-
-# download trusted certs
-RUN mkdir -p /etc/ssl/certs && update-ca-certificates
 
 # install composer
 RUN curl -sS https://getcomposer.org/installer | php \
