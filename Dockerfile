@@ -1,39 +1,35 @@
 FROM php:7.4-apache
 
 RUN apt-get update; \
-    apt-get install -y \
-        git \
-        vim \
-        wget \
-        apt-utils \
-	zip \
-	unzip \
-        ;
-   
-# install the PHP extensions we need
+    apt-get apt-get install -y git vim wget apt-utils zip unzip;
+
+RUN apt-get install -y --no-install-recommends \
+    libbz2-dev libicu-dev libjpeg-dev libpng-dev libldap2-dev libldb-dev libnotify-bin libpq-dev libxml2-dev libzip-dev zlib1g-dev;
+
 RUN set -ex; \
 	\
 	if command -v a2enmod; then \
 		a2enmod rewrite; \
 	fi; \
 	\
-	savedAptMark="$(apt-mark showmanual)"; \
+	savedAptMark="$(apt-mark showmanual)"; 
+	
+# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
+RUN apt-mark auto '.*' > /dev/null; \
+	apt-mark manual $savedAptMark; \
+	ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
+		| awk '/=>/ { print $3 }' \
+		| sort -u \
+		| xargs -r dpkg-query -S \
+		| cut -d: -f1 \
+		| sort -u \
+		| xargs -rt apt-mark manual; \
 	\
-	apt-get install -y --no-install-recommends \
-        libbz2-dev \
-        libicu-dev \
-		libjpeg-dev \
-        libldap2-dev \
-        libldb-dev \
-        libnotify-bin \
-		libpng-dev \
-		libpq-dev \
-        libxml2-dev \
-		libzip-dev \
-        zlib1g-dev \
-	; \
-	\
-	docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr; \
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+	rm -rf /var/lib/apt/lists/*
+
+# install the PHP extensions we need
+RUN docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr; \
 	docker-php-ext-install -j "$(nproc)" \
         bcmath \
         bz2 \
@@ -49,20 +45,8 @@ RUN set -ex; \
 	zip \
 	; \
 	\
-	apt-get autoromove; \
-# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
-	apt-mark auto '.*' > /dev/null; \
-	apt-mark manual $savedAptMark; \
-	ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
-		| awk '/=>/ { print $3 }' \
-		| sort -u \
-		| xargs -r dpkg-query -S \
-		| cut -d: -f1 \
-		| sort -u \
-		| xargs -rt apt-mark manual; \
-	\
-	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
-	rm -rf /var/lib/apt/lists/*
+	
+
 
 # Use the default development configuration
 # see https://hub.docker.com/_/php
