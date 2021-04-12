@@ -1,7 +1,7 @@
 FROM php:7.4-apache
 
 RUN apt-get update; \
-    apt-get install -y git vim wget apt-utils zip unzip ca-certificates;
+    apt-get install -y git vim wget apt-utils zip unzip ca-certificates curl;
 
 RUN apt-get install -y --no-install-recommends \
     libbz2-dev libicu-dev libjpeg-dev libpng-dev libldap2-dev libldb-dev libnotify-bin libpq-dev libxml2-dev libzip-dev zlib1g-dev libfreetype6-dev libjpeg62-turbo-dev;
@@ -35,20 +35,6 @@ RUN docker-php-ext-install -j$(nproc) \
 	
 # download trusted certs
 RUN mkdir -p /etc/ssl/certs && update-ca-certificates
-
-# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
-RUN apt-mark auto '.*' > /dev/null; \
-	apt-mark manual $savedAptMark; \
-	ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
-		| awk '/=>/ { print $3 }' \
-		| sort -u \
-		| xargs -r dpkg-query -S \
-		| cut -d: -f1 \
-		| sort -u \
-		| xargs -rt apt-mark manual; \
-	\
-	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
-	rm -rf /var/lib/apt/lists/*
 
 # Use the default development configuration
 # see https://hub.docker.com/_/php
@@ -96,6 +82,20 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - \
     && apt-get update && apt-get install -y --no-install-recommends nodejs autoconf automake g++ gcc libtool make nasm python \
     && npm i -g yarn bower
 
+# reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
+RUN apt-mark auto '.*' > /dev/null; \
+	apt-mark manual $savedAptMark; \
+	ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
+		| awk '/=>/ { print $3 }' \
+		| sort -u \
+		| xargs -r dpkg-query -S \
+		| cut -d: -f1 \
+		| sort -u \
+		| xargs -rt apt-mark manual; \
+	\
+	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+	rm -rf /var/lib/apt/lists/*
+	
 WORKDIR /var/www/html
 CMD bash -c "composer install && npm install && php ./artisan serve --port=80 --host=0.0.0.0"
 EXPOSE 80
