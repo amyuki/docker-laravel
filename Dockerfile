@@ -4,7 +4,7 @@ RUN apt-get update; \
     apt-get install -y git vim wget apt-utils zip unzip;
 
 RUN apt-get install -y --no-install-recommends \
-    libbz2-dev libicu-dev libjpeg-dev libpng-dev libldap2-dev libldb-dev libnotify-bin libpq-dev libxml2-dev libzip-dev zlib1g-dev;
+    libbz2-dev libicu-dev libjpeg-dev libpng-dev libldap2-dev libldb-dev libnotify-bin libpq-dev libxml2-dev libzip-dev zlib1g-dev libfreetype6-dev libjpeg62-turbo-dev;
 
 RUN set -ex; \
 	\
@@ -29,8 +29,8 @@ RUN apt-mark auto '.*' > /dev/null; \
 	rm -rf /var/lib/apt/lists/*
 
 # install the PHP extensions we need
-RUN docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr; \
-	docker-php-ext-install -j "$(nproc)" \
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg; \
+	docker-php-ext-install -j$(nproc) \
         bcmath \
         bz2 \
         exif \
