@@ -59,14 +59,14 @@ RUN pecl install xdebug \
 
 # see https://xdebug.org/docs/install
 RUN { \
-    echo 'xdebug.remote_connect_back=0'; \
-    echo 'xdebug.remote_autostart=1'; \
-    echo 'xdebug.remote_enable=1'; \
-    echo 'xdebug.remote_host="host.docker.internal"'; \
-    echo 'xdebug.remote_port=9001'; \
+    echo 'xdebug.discover_client_host=false'; \
+    echo 'xdebug.remote_mode=debug'; \
+    echo 'xdebug.start_with_request=yes'; \
+    echo 'xdebug.client_host="host.docker.internal"'; \
+    echo 'xdebug.client_port=9001'; \
     echo 'xdebug.idekey=PHPSTORM'; \
     echo 'memory_limit = 1024M'; \
-    echo 'xdebug.remote_log="/tmp/xdebug.log"';\
+    echo 'xdebug.log="/tmp/xdebug.log"';\
     } >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
 # install phpunit, phpcs and phpcbf.
