@@ -60,7 +60,7 @@ RUN pecl install xdebug \
 # see https://xdebug.org/docs/install
 RUN { \
     echo 'xdebug.discover_client_host=false'; \
-    echo 'xdebug.remote_mode=debug'; \
+    echo 'xdebug.mode=debug'; \
     echo 'xdebug.start_with_request=yes'; \
     echo 'xdebug.client_host="host.docker.internal"'; \
     echo 'xdebug.client_port=9001'; \
