@@ -13,14 +13,13 @@ RUN set -ex; \
 	fi; 
 	
 # install the PHP extensions we need
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+RUN docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg \
 && docker-php-ext-install -j$(nproc) gd;
 
 RUN docker-php-ext-install -j$(nproc) \
         bcmath \
         bz2 \
         exif \
-	gd \
         gettext \
         intl \
         ldap \
